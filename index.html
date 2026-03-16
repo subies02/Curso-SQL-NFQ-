@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFQ Academy - Curso SQL</title>
+    <!-- Fuentes corporativas de NFQ -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Variables de Marca NFQ */
+        :root {
+            --nfq-siena: #E2AC33;
+            --nfq-raspberry: #D13B5F;
+            --nfq-blue: #217BEE;
+            --nfq-black: #100D25;
+            --nfq-grey-700: #5D6066;
+            --nfq-grey-500: #82858D;
+            --nfq-grey-300: #BFBFBF;
+            --nfq-grey-200: #E1E1E1;
+            --nfq-grey-100: #F3F3F3;
+            --nfq-white: #FFFFFF;
+        }
+
+        /* Reseteo básico */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Instrument Sans', sans-serif;
+            background-color: var(--nfq-white);
+            color: var(--nfq-black);
+            height: 100vh;
+            overflow: hidden; /* Evita scroll general, lo controlamos por zonas */
+        }
+
+        h1, h2, h3, h4, .font-sora { font-family: 'Sora', sans-serif; }
+
+        /* --- LAYOUT PRINCIPAL (CSS GRID) --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 64px 1fr;
+            height: 100vh;
+            transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Estado colapsado del menú */
+        .app-container.menu-oculto {
+            grid-template-columns: 0px 1fr;
+        }
+
+        /* --- BARRA LATERAL (SIDEBAR) --- */
+        .sidebar {
+            background-color: var(--nfq-black);
+            grid-column: 1 / 2;
+            grid-row: 1 / 3;
+            overflow-y: auto;
+            overflow-x: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar-inner {
+            width: 280px; /* Ancho fijo para que no se deforme al colapsar */
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .logo-nfq {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .logo-nfq span {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--nfq-grey-300);
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-group-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--nfq-grey-500);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 1.5rem 0 0.5rem 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            color: var(--nfq-grey-300);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Pequeño punto decorativo para los items */
+        .nav-item::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: transparent;
+            margin-right: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: rgba(226, 172, 51, 0.1); /* Siena Orange translúcido */
+            color: var(--nfq-siena);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            background-color: var(--nfq-siena);
+        }
+
+        /* --- CABECERA --- */
+        header {
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+            background: white;
+            border-bottom: 1px solid var(--nfq-grey-100);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .btn-menu {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 1.5rem;
+            border-radius: 6px;
+            color: var(--nfq-black);
+            transition: background 0.2s;
+            display: flex;
+        }
+
+        .btn-menu:hover { background-color: var(--nfq-grey-100); }
+
+        .breadcrumb {
+            font-size: 0.95rem;
+            color: var(--nfq-grey-500);
+        }
+
+        .breadcrumb strong { color: var(--nfq-black); font-weight: 600; }
+
+        /* --- ÁREA PRINCIPAL DE LECTURA --- */
+        main {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+            overflow-y: auto; /* Scroll independiente para la lectura */
+            background-color: var(--nfq-white);
+            padding: 3rem 2rem 6rem 2rem;
+            scroll-behavior: smooth;
+        }
+
+        .content-wrapper {
+            max-width: 760px; /* Ancho óptimo para lectura continua */
+            margin: 0 auto;
+        }
+
+        /* Clases para manejar qué lección se muestra */
+        .lesson-content { 
+            display: none; 
+            animation: fadeIn 0.4s ease; 
+        }
+        .lesson-content.active { 
+            display: block; 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* --- ESTILOS DEL CONTENIDO (Tipografía NFQ) --- */
+        .lesson-content h1 { font-size: 2.2rem; margin-bottom: 1.5rem; color: var(--nfq-black); line-height: 1.2; }
+        .lesson-content h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--nfq-black); }
+        .lesson-content p { font-size: 1.1rem; line-height: 1.7; color: var(--nfq-grey-700); margin-bottom: 1.5rem; }
+        .lesson-content strong { color: var(--nfq-black); font-weight: 600; }
+        .lesson-content ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        .lesson-content li { font-size: 1.1rem; line-height: 1.7; color: var(--nfq-grey-700); margin-bottom: 0.5rem; }
+
+        /* Estilo para comandos SQL dentro del texto */
+        .code-inline {
+            background-color: var(--nfq-grey-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95em;
+            color: var(--nfq-raspberry); /* Resalte con color corporativo */
+        }
+
+        /* Bloques de código simulando celdas de Jupyter */
+        .code-block {
+            background-color: #FAFAFA;
+            border: 1px solid var(--nfq-grey-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .code-badge {
+            position: absolute;
+            top: -12px;
+            left: 1.5rem;
+            background-color: var(--nfq-blue);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .code-block pre {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            color: var(--nfq-black);
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* Simulador de imágenes */
+        .img-placeholder {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+            background-color: var(--nfq-grey-100);
+            border: 1px dashed var(--nfq-grey-300);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+            color: var(--nfq-grey-500);
+            font-size: 0.9rem;
+        }
+
+        /* --- NUEVO: Estilo para imágenes reales --- */
+        .img-lesson {
+            max-width: 100%; /* Cambiamos width por max-width para no estirar recortes pequeños */
+            height: auto; /* Mantendrá las proporciones sin deformarse */
+            border-radius: 8px; /* Bordes redondeados NFQ */
+            border: 1px solid var(--nfq-grey-200);
+            margin: 2rem auto; /* Añadido 'auto' para centrar la imagen si es pequeña */
+            display: block; /* Necesario para que el centrado funcione */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Sombra sutil */
+        }
+
+        /* Tallas específicas para controlar capturas muy grandes */
+        .img-sm { max-width: 350px; }
+        .img-md { max-width: 550px; }
+        .img-lg { max-width: 100%; }
+
+        /* --- BOTONES INFERIORES --- */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--nfq-grey-100);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-outline {
+            background-color: var(--nfq-white);
+            color: var(--nfq-grey-700);
+            border: 1px solid var(--nfq-grey-300);
+        }
+
+        .btn-outline:hover { background-color: var(--nfq-grey-100); color: var(--nfq-black); }
+
+        .btn-primary {
+            background-color: var(--nfq-black);
+            color: white;
+        }
+
+        .btn-primary:hover { background-color: var(--nfq-siena); color: var(--nfq-black); }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        
+        <!-- ========================================== -->
+        <!-- ZONA 1: SIDEBAR (Menú de navegación)       -->
+        <!-- ========================================== -->
+        <aside class="sidebar">
+            <div class="sidebar-inner">
+                <div class="logo-nfq font-sora">
+                    N<span>Academy</span>
+                </div>
+                
+                <nav id="course-menu">
+                    <!-- Cada div.nav-item tiene un data-target que apunta al ID del <article> correspondiente -->
+                    <div class="nav-group-title">Módulo 0</div>
+                    <div class="nav-item active" data-target="lesson-0">0. Introducción a DB Browser</div>
+                    
+                    <div class="nav-group-title">1. Mi primera tabla</div>
+                    <div class="nav-item" data-target="lesson-1">1.1. Crear una tabla</div>
+                    <div class="nav-item" data-target="lesson-2">1.2. Insertar datos</div>
+                    <div class="nav-item" data-target="lesson-3">1.3. Consultar datos</div>
+                    <div class="nav-item" data-target="lesson-4">1.4. Identificadores</div>
+
+                    <div class="nav-group-title">2.Interacción con la base de datos</div>
+                    <div class="nav-item" data-target="lesson-5">2.1. Ordenar y nombrar tablas</div>
+                    <div class="nav-item" data-target="lesson-6">2.2. Filtrar datos</div>
+                    <div class="nav-item" data-target="lesson-7">2.3. Funciones</div>
+
+                    <div class="nav-group-title">3. Relaciones entre tablas</div>
+                    <div class="nav-item" data-target="lesson-8">3.1. Subconsultas</div>
+                    <div class="nav-item" data-target="lesson-9">3.2. JOINs</div>
+                    <div class="nav-item" data-target="lesson-10">3.3. Union</div>
+                    <div class="nav-item" data-target="lesson-11">3.4. Vistas</div>
+
+                    <div class="nav-group-title">Transacciones</div>
+                    <div class="nav-item" data-target="lesson-12">4.1. Transacciones y Rollback</div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- ZONA 2: CABECERA                           -->
+        <!-- ========================================== -->
+        <header>
+            <button class="btn-menu" id="toggle-sidebar" title="Ocultar menú">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="breadcrumb" id="breadcrumb">
+                Módulo 0 / <strong>0. Introducción a DB Browser</strong>
+            </div>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- ZONA 3: ÁREA DE LECTURA                    -->
+        <!-- ========================================== -->
+        <main id="main-scroll">
+            <div class="content-wrapper">
+                
+                <!-- CONTENIDO: LECCIÓN 0 -->
+                <article id="lesson-0" class="lesson-content active">
+                    <!-- He extraído este texto directamente de tu "Instrucciones.ipynb" -->
+                    <h1>Introducción y presentación de DB Browser</h1>
+                    
+                    <p>Al abrir DB Browser nos aparecerá el menú principal. En él encontramos varias pestañas con los nombres <strong>"Estructura"</strong>,  <strong>"Hoja de datos"</strong>, <strong>"Editar programas"</strong> y <strong>"Ejecutar SQL"</strong>.</p>
+                    
+                    <p>Los que a nosotros más nos interesan son el primero y el último (aunque "Hoja de datos" es útil para ver cómo son las tablas que tengamos sin tener que escribir código).</p>
+                    
+                    <!-- Aquí insertamos la imagen real AÑADIENDO la clase img-md para reducirla -->
+                    <img src="img\Menu DB Browser.png" alt="Menú principal de DB Browser" class="img-lesson img-lg">
+
+                    <p>En la pestaña de <strong>"Estructura"</strong> encontramos las tablas que hemos creado. Ahora mismo no nos debería aparecer ninguna.</p>
+                    <p>Lo primero que se tiene que hacer es crear una base de datos, pulsando el botón <strong>"Nueva Base de datos"</strong>. Te pedirá guardarla en tu ordenador (asegúrate de que tenga la extensión .db).</p>
+                    <p>Cuando la hayamos creado y guardado, nos va a aparecer este menu. Este menu sirve para crear tablas de una manera intuitiva sin tener que usar codigo, lo genera solo abajo. </p>
+                    <p>Aquí podemos darle nombre a la tabla y añadir las columnas que queramos.</p>
+                    <p>Nosotros vamos a ignorar este menu y vamos a crear las tablas con el propio codigo, así que lo podemos cerrar. </p>
+                    
+                    <img src="img\Crear Tabla.png" alt="Menú para crear tablas en DB Browser" class="img-lesson img-lg">
+
+                    <p> Si nos moveremos a la pestaña "Ejecutar SQL" vemos tres grandes bloques. El de arriba es donde se escribe el código, el del medio es donde se verá el resultado del código, si lo hay; y el último nos dirá si ha habido algun error al ejecutar.</p>
+                    
+                    <img src="img\Pantalla ejecutar.png" alt="Pestaña Ejecutar SQL en DB Browser" class="img-lesson img-lg">
+
+
+
+                </article>
+
+
+                <article id="lesson-1" class="lesson-content">
+                    <h1> Crear una tabla </h1>
+                    <p>Empezamos con lo divertido del curso: el código.</p>
+                    <p>Lo primero que vamos a ver es como crear tablas. </p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre> CREATE TABLE 'usuarios' (
+	'nombre'	TEXT,
+	'apellido'	TEXT,
+	'edad'	INTEGER
+)
+                        </pre>
+                    </div>
+
+                    <p>Con este código hemos creado una tabla llamada "usuarios" con tres columnas: "nombre", "apellido" y "edad".</p>
+                    <p>Como vemos, el código es bastante intuitivo. En su sintaxis vemos primer el nombre de la tabla, seguido de las columnas que queremos añadir, entre parentesis y separadas por comas. Para las columnas primero ponemos el nombre de ésta entre '' (o "") seguido de su formato. El formato indica que tipo de valor va a haber en la celda de cada columna. Por ejemplo, el nombre será texto así que su formato será TEXT. Para la edad, será un número entero, así que su formato será INTEGER. </p>
+                    <p> A parte de estos dos formatos hay muchos más. Los más usados son DATE, para fechas; REAL, para valores con decimales, limitados a 64 bytes; NUMERIC, para valores con decimales sin limite de bytes (como pi); o BLOB, para el formati binario. </p>
+                </article>
+
+                <article id="lesson-2" class="lesson-content">
+                    <h1> Insertar datos </h1>
+                    <p>Ahora que ya tenemos nuestra tabla, vamos a llenarla con datos. Para eso usamos el comando <span class="code-inline">INSERT INTO</span>.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>INSERT INTO usuarios ('nombre', 'apellido', 'edad') 
+VALUES ('Juan', 'Pérez', 30),
+		('María', 'Gómez', 25),
+		('Carlos', 'López', 35);</pre>
+                    </div>
+                </article>
+
+                <article id="lesson-3" class="lesson-content">
+                    <h1> Consultar datos </h1>
+                    <p>Ahora que ya tenemos datos en nuestra tabla, vamos a aprender a consultarlos. Para eso usamos el comando <span class="code-inline">SELECT</span>.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT nombre, apellido FROM usuarios;</pre>
+                    </div>
+
+                    <img src="img\Tabla1.png" alt="Resultado de una consulta SQL en DB Browser" class="img-lesson img-sm">
+                    <p>Con este código hemos seleccionado las columnas "nombre" y "apellido" de la tabla "usuarios". El resultado es una tabla con los nombres y apellidos de los usuarios, pero sin la edad.</p>
+                    <p>Si queremos seleccionar todas las columnas, podemos usar el asterisco <span class="code-inline">*</span> en lugar de escribir cada columna. Por ejemplo:</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM usuarios;</pre>
+                    </div>
+                    <p>Esto nos traerá todas las columnas de la tabla "usuarios".</p>
+                    <img src="img\Tabla2.png" alt="Resultado de una consulta SQL con SELECT * en DB Browser" class="img-lesson img-sm">
+                </article>
+
+                <article id="lesson-4" class="lesson-content">
+                    <h1> Identificadores </h1>
+                    <p>En SQL, los identificadores sirven para poder identificar cada fila con un número único. Son muy útiles para tablas que tenga filas muy parecidas. Es como el DNI de cada fila. Es importante seguir ciertas reglas al nombrar estos identificadores para evitar errores y confusiones.</p>
+                    <p>Algunas de las reglas más importantes son:</p>
+                    <ul>
+                        <li>Pueden contener letras, números y guiones bajos.</li>
+                        <li>No pueden contener espacios ni caracteres especiales (como @, #, $, etc.).</li>
+                        <li>No pueden ser palabras reservadas de SQL (como SELECT, FROM, WHERE, etc.).</li>
+                    </ul>
+                    <p>Los identificadores no pueden tener celdas vacias así que no podemos insertar ahora un identificador a nuestra tabla, ya que las filas ya creadas apareceria su correspondiente celda vacia. Entonces primero tenemos que eliminar la tabla y volver a crearla para añadir los valores a este identificador: </p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>DROP TABLE usuarios;
+CREATE TABLE 'usuarios' (
+	'DNI' INTEGER,
+	'nombre'	TEXT,
+	'apellido'	TEXT,
+	'edad'	INTEGER,
+	PRIMARY KEY ('DNI' AUTOINCREMENT)
+);</pre>
+                    </div>
+                    <p>Con este código hemos eliminado la tabla "usuarios" y la hemos vuelto a crear añadiendo una nueva columna llamada "DNI" que será nuestro identificador. Además, hemos indicado que esta columna será la clave primaria (PRIMARY KEY) y que se autoincrementará (AUTOINCREMENT) cada vez que añadamos una nueva fila. De esta manera, cada fila tendrá un número único en la columna "DNI".</p>
+                    <p>Ahora que ya tenemos nuestro identificador, podemos insertar los datos de nuevo. Esta vez, como el identificador se autoincrementa, no necesitamos especificarlo en el código de inserción:</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>INSERT INTO usuarios ('nombre', 'apellido', 'edad') 
+VALUES ('Juan', 'Pérez', 30),
+    ('María', 'Gómez', 25),
+    ('Carlos', 'López', 35);
+SELECT * FROM usuarios;
+                        </pre>
+                    </div>
+                    <p>Como vemos, ahora la tabla tiene una nueva columna llamada "DNI" que se ha autoincrementado automáticamente para cada fila. El resultado de la consulta nos muestra esta nueva columna con los valores 1, 2 y 3 para cada fila respectivamente.</p>
+                    <img src="img\Tabla3.png" alt="Tabla con identificador en DB Browser" class="img-lesson img-sm">
+                    <p>Los indicadores también nos ayudar a relacionar tablas. Imaginemos que en una tabla aparece también el indicador de otra tabla, por ejemplo, en una tabla de consultas médicas donde aparece el propio ID de cada consulta y el ID de la persona que asistió (DNI). Esto nos ayuda a identificar el nombre de la persona que asistió a cada consulta. </p>
+                    <p>Para ver mejor estas relaciones vamos a usar la base de datos que aparece en el siguiente link: https://en.wikiversity.org/wiki/Database_Examples/Northwind/SQLite. Copiamos el código, creamos una nueva base de datos en DB Browser y pegamos el código en el ejecutor de SQL.</p>
+
+                    <img src="img\Northwind.png" alt="Ejemplo de tablas relacionadas en DB Browser" class="img-lesson img-lg">
+                    <img src="img\NewDataBase.png" alt="Nueva base de datos" class="img-lesson img-sm">
+                    <img src="img\Tabla4.png" alt="Insertar código en DB Browser" class="img-lesson img-mg">
+
+                    <p> Vemos entonces que se nos habrán generado 9 tablas.</p>
+
+                    <img src="img\Tabla5.png" alt="Tablas generadas en DB Browser" class="img-lesson img-lg">
+
+                    <p>En esta base de datos representa el conjunto de ventas que ha obtenido una empresa. En ella tenemos tablas con información de los clientes, de los empleados, productos, etc.  </p>
+                    <p>El diagrama de relaciones de estas tablas es el siguiente:</p>
+
+                    <img src="img\Northwind_E-R_Diagram.png" alt="Diagrama de relaciones entre tablas en DB Browser" class="img-lesson img-lg">
+
+                    <p>Por ejemplo si queremos ver cuantas compras ha hecho la persona X tenemos que relacionar la tabla Orders con la de Customers. Y así con el resto.</p>
+
+
+
+                </article>
+
+
+
+                <article id="lesson-5" class="lesson-content">
+                    <h1> Ordenar y nombrar tablas </h1>
+                    <p>A la hora de visualizar tablas podemos pedir que en la visualización las columnas tengan otro nombre usando AS.</p>
+                    <p>Para ordenar las filas segune el valor de una columna usamos <span class="code-inline">ORDER BY <i>Nombre Columna</i> ASC/DESC</span></p>
+                    <p>ASC implica ascendiente (y es el que viene por defecto, no hace falta que lo pongamos) y DESC descendiente (si queremos los valores menores arriba o abajo).</p>
+                    <p>Este es un <em>texto importante en cursiva</em> y este es <i>texto en cursiva simple</i>.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductName as Nombre_Producto, Price as Precio FROM Products 
+order by	Price DESC</pre>
+                    </div>
+                    <p>En general el peso de cada formato es:</p>  
+                    <p style="text-align: center;">NULL (celdas vacias) &rarr; Números &rarr; Carácteres especiales &rarr; Letras</p>
+
+                    <p>Si queremos que los NULL nos aparezcan al principio/final ponemos NULLS LAST/FIRST, después del ASC/DESC.</p>
+
+                    <p>También podemos ordenar según varias columnas, siendo la primera la que manda más.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Products
+ORDER BY CategoryID DESC, Price NULLS LAST;</pre>
+                    </div>
+                </article>
+
+                <article id="lesson-6" class="lesson-content">
+                    <h1> Filtrar datos </h1>
+                    <p>Para filtrar datos usamos el <span class="code-inline">WHERE</span> y un operador comparativo.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductID, ProductName as Nombre_Producto, Price as Precio FROM Products 
+WHERE ProductID = 14;</pre>
+                    </div>
+
+                    <p>En este caso nos aparecerá el producto con ID 14. Para texto se tiene que poner entre ' ' y los operadores son <, >, <=, >=, =, !=.</p>
+                    <p>Si queremos usar varios a la vez usamos AND y OR. </p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductID, ProductName as Nombre_Producto, Price as Precio FROM Products 
+WHERE ProductID != 14 and Price > 30</pre>
+                    </div>
+
+                    <p>En este caso nos aparecerán los productos con ID distinto a 14 y con un precio mayor a 30.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT*FROM Employees
+where FirstName ='Nancy' or FirstName = 'Anne'</pre>
+                    </div>
+                    <p>Y si queremos el contrario de un conjunto usamos NOT.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Customers
+where not Country='USA' AND NOT Country ='France'</pre>
+                    </div>
+                    <p>En este caso nos aparecerán los clientes que no sean ni de USA ni de Francia.</p>
+
+                    <p> La función <span class="code-inline">BETWEEN</span> nos permite nos sirve para buscar entre dos valores.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Customers
+WHERE CustomerID BETWEEN  50 AND 55</pre>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre> SELECT * FROM Employees where BirthDate BETWEEN '1950-0-1' and '1960-0-1'</pre>
+                    </div>
+
+                    <p>Si queremos limitar el número de resultados de la búsqueda podemos usar <span class="code-inline">LIMIT</span> al final del código.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Customers
+WHERE CustomerID > 50 AND NOT Country='USA'
+LIMIT 5</pre>
+                    </div>
+
+                    <p>La función <span class="code-inline">Random</span> nos permite seleccionar filas de forma aleatoria.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Products
+WHERE NOT CategoryID = 6
+AND not SupplierID = 1
+and Price <= 30
+order by random()
+LIMIT 3</pre>
+                    </div>
+
+                    <p>La función <span class="code-inline">LIKE</span> nos permite buscar patrones en los datos de texto. Por ejemplo, sabemos que el apellido de una persona empieza por F pero no sabemos como acaba</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Employees
+WHERE LastName LIKE 'F%';</pre>
+                    </div>
+
+                    <p>O que contiene la r</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Employees
+WHERE LastName LIKE '%r%';</pre>
+                    </div>
+
+                    <p>Si sabemos que empieza por la F y que tiene exactamente seis letras usamos "_"</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Employees
+WHERE LastName LIKE 'F_____;</pre>
+                    </div>
+
+                    <p>Si estamos buscando varios valores, envez de usar el <span class="code-inline">OR</span> para cada valor, podemos usar <span class="code-inline">IN</span> y la lista de valores deseados.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Products
+where SupplierID = 3
+or SupplierID = 4
+or SupplierID = 9
+or SupplierID = 14 </pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * FROM Products
+WHERE SupplierID IN (3, 4, 9, 14);</pre>
+                    </div>
+                    
+                    <p>Cuando estamos seleccionando las columnas que queremos visualizar también podemos pedir sus derivados:</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT Price, Price*1.21 as Precio_IVA FROM Products;</pre>
+                    </div>
+
+                    <p>Dentro de los derivados también podemos usar funciones, como por ejemplo las funciones <span class="code-inline">COUNT()</span> para contar cuantos resultados nos devuelve, <span class="code-inline">SUM()</span> para la suma de todos sus valores o <span class="code-inline">AVG()</span> para la media de esa columna.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT count(Price) as Cantidad_Precios, sum(price) as Suma_Precios, Round(AVG(price),2) as Precio_Medio FROM Products
+--WHERE ProductName IS NOT NULL</pre>
+                    </div>
+
+                    <p>Si queremos ver la suma de los valores, pero según una característica en concreto, usamos GROUP BY. Esto nos permite agrupar esta suma según dicha característica.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT SupplierID, count(Price) as Cantidad_Precios, sum(price) as Suma_Precios, Round(AVG(price),2) as Precio_Medio FROM Products
+WHERE Price IS NOT NULL
+GROUP by SupplierID
+ORDER by Precio_Medio DESC;</pre>
+                    </div>
+
+                    <p>Si queremos filtrar usando una de las columnas que acabamos de calcular no podemos usar WHERE, tenemos que usar HAVING. Funciona de la misma manera per para columnas calculadas.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT SupplierID, count(Price) as Cantidad_Precios, sum(price) as Suma_Precios, Round(AVG(price),2) as Precio_Medio FROM Products
+WHERE Price IS NOT NULL
+GROUP by SupplierID
+HAVING Precio_Medio>40
+ORDER by Precio_Medio DESC</pre>
+                    </div>
+
+
+                </article>
+
+
+                <article id="lesson-8" class="lesson-content">
+                    <h1> Subconsultas </h1>
+                    <p>Aquí viene lo divertido, y complicado...</p>
+                    <p>Recordemos que hemos dicho que los indicadores nos ayudaban a identificar tablas y relacionarlas con otras. Aquí es donde nos van a ser útiles. </p>
+                    <p>Supongamos que queremos ver la cantidad de productos vendidos y su nombre para cada producto, pero tenemos las cantidades vendidas y los nombres en tablas distintas. Vamos a tener que "curzar" las tablas y vemos que ProductID aparece en ambas.</p>
+                    <p>Vamos a asentarnos primero en una, OrderDetails por ejemplo, y queremos la suma de las cantidades por producto. Hasta ahí todo bien.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>select ProductID,
+	sum(Quantity) as Cantidad_total
+FROM	OrderDetails
+GROUP by ProductID </pre>
+                    </div>
+                    <p>Ahora queremos el nombre. Para ello tenemos que hacer lo que se llama una subconsulta: buscamos una consulta que nos devuelva una tabla con una sola columna con los nombre de los productos:</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductName FROM Products</pre>
+                    </div>
+
+                    <p>Y los tenemos que hacer coincidir, así que usamos un <span class="code-inline">WHERE <i>Nombre de la tabla A</i>.<i>Nombre de la columna</i> = <i>Nombre de la tabla B</i>.<i>Nombre de la columna</i></span>.</p>
+                    <p>Las subconsultas son consultas anidadas dentro de otra consulta. Nos permiten realizar operaciones más complejas y obtener resultados que no podríamos obtener con una sola consulta.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>select ProductID,
+	sum(Quantity) as Cantidad_total, 
+	(SELECT ProductName FROM Products
+	WHERE Products.ProductID = OrderDetails.ProductID) as Name
+FROM	OrderDetails
+GROUP by ProductID</pre>
+                    </div>
+
+                    <p>En este caso, la subconsulta <span class="code-inline">(SELECT ProductName FROM Products WHERE Products.ProductID = OrderDetails.ProductID)</span> se ejecuta para cada fila de la consulta principal. Para cada ProductID en OrderDetails, la subconsulta busca el ProductName correspondiente en la tabla Products y lo devuelve como una nueva columna llamada "Name".</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT 
+    (SELECT ProductName FROM Products
+		WHERE ProductID = OrderDetails.ProductID) as Nombre_prod,
+	sum(Quantity) as Qty_total,
+	(SELECT Price FROM Products
+		WHERE ProductID = OrderDetails.ProductID)as Precio_prod,
+	sum(Quantity)*(SELECT Price FROM Products
+		WHERE ProductID = OrderDetails.ProductID) as Recaudación
+FROM OrderDetails
+GROUP BY ProductID
+ORDER by Recaudación desc</pre>
+                    </div>
+
+                    <p>Esto se puede hacer con varias tablas a la vez.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ContactName,
+	(SELECT sum(quantity) from OrderDetails od, Orders o
+	WHERE o.OrderID = od.OrderID AND c.CustomerID = o.CustomerID) as Cantidad_Comprada
+from Customers c
+
+GROUP by c.CustomerID
+ORDER by Cantidad_Comprada DESC</pre>
+                    </div>
+                </article>
+
+
+                <article id="lesson-9" class="lesson-content">
+                    <h1> JOINs </h1>
+                    <p>Los JOINs son una forma de combinar filas de dos o más tablas basándose en una columna relacionada entre ellas. Son fundamentales para trabajar con bases de datos relacionales, ya que nos permiten obtener información de varias tablas en una sola consulta.</p>
+                    <p>Por ejemplo, si antes hemos hecho</p>
+
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * from Employees e, Orders o
+where e.EmployeeID = o.EmployeeID</pre>
+                    </div>
+
+                    <p>Esto es un JOIN implícito, pero también podemos hacerlo explícito usando la palabra JOIN:</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * from Employees e JOIN Orders o
+ON e.EmployeeID = o.EmployeeID</pre>
+                    </div>
+                    <p>En este caso, estamos combinando las tablas Employees y Orders basándonos en la columna EmployeeID que es común a ambas tablas. El resultado de esta consulta será una nueva tabla que contiene todas las columnas de ambas tablas para las filas donde EmployeeID coincide.</p>
+                    <p>Existen varios tipos de JOINs, siendo los más comunes:</p>
+                    <img src="img\join.png" alt="Tipos de JOIN en SQL" class="img-lesson img-md">
+                    <ul>
+                        <li><strong>INNER JOIN</strong>: Devuelve solo las filas que tienen coincidencias en ambas tablas (funciona también con solo JOIN).</li>
+                        <li><strong>LEFT JOIN</strong>: Devuelve todas las filas de la tabla izquierda y las filas coincidentes de la tabla derecha. Si no hay coincidencia, las columnas de la tabla derecha tendrán valores NULL. <span class="code-inline">SELECT * from A LEFT JOIN B on A.id = B.id</span>.</li>
+                        <li><strong>RIGHT JOIN</strong>: Devuelve todas las filas de la tabla derecha y las filas coincidentes de la tabla izquierda. Si no hay coincidencia, las columnas de la tabla izquierda tendrán valores NULL. <span class="code-inline">SELECT * from B LEFT JOIN A on B.id = A.id</span>.</li>
+                        <li><strong>FULL OUTER JOIN</strong>: Devuelve todas las filas cuando hay una coincidencia en una de las tablas. Si no hay coincidencia, las columnas de la tabla sin coincidencia tendrán valores NULL. <span class="code-inline">SELECT * from A FULL JOIN B on A.id = B.id</span>.</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT 
+	FirstName, 
+	e.LastName,
+	sum(Quantity)as Uds_tot
+FROM Employees e JOIN Orders o
+on e.EmployeeID = o.EmployeeID 
+JOIN OrderDetails od
+on o.OrderID = od. OrderID
+group by e.EmployeeID
+ORDER by Uds_tot</pre>
+                    </div>
+
+                    <img src="img\Tabla6.png" alt="Ejemplo de JOIN en SQL" class="img-lesson img-lg">
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT 
+	FirstName, 
+	e.LastName,
+	sum(Quantity)as Uds_tot
+FROM Employees e LEFT JOIN Orders o
+on e.EmployeeID = o.EmployeeID 
+LEFT JOIN OrderDetails od
+on o.OrderID = od. OrderID
+group by e.EmployeeID
+ORDER by Uds_tot</pre>
+                    </div>
+
+                    <img src="img\Tabla7.png" alt="Ejemplo de LEFT JOIN en SQL" class="img-lesson img-lg">
+
+                    <p>Vemos que ahora nos ha aparecido Adam, que no tiene ventas</p>
+                
+                </article>
+
+
+
+
+                <article id="lesson-10" class="lesson-content">
+                    <h1> Union </h1>
+                    <p>La función <span class="code-inline">UNION</span> nos permite combinar los resultados de dos o más consultas SELECT en una sola tabla de resultados,es decir, unen tablas de manera vertical. Es importante que las consultas que se combinan con UNION tengan el mismo número de columnas y que las columnas correspondientes tengan tipos de datos compatibles.</p>
+                    <p>Tenemos el <span class="code-inline">UNION</span> y el <span class="code-inline">UNION ALL</span>. La diferencia entre ambos es que UNION elimina los registros duplicados del resultado final, mientras que UNION ALL incluye todos los registros, incluso los duplicados.</p>
+                    
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductID, ProductName, Price FROM Products
+WHERE ProductID BETWEEN 18 and 20
+
+UNION
+
+SELECT ProductID, ProductName, Price FROM Products
+WHERE ProductID BETWEEN 19 and 21 </pre>
+                    </div>
+                    <img src="img\Tabla8.png" alt="Ejemplo de UNION en SQL" class="img-lesson img-lg">
+                    <p>En este caso, el resultado de la consulta incluirá los productos con ID 18, 19, 20 y 21, pero el producto con ID 19 solo aparecerá una vez debido a que UNION elimina los duplicados.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT ProductID, ProductName, Price FROM Products
+WHERE ProductID BETWEEN 18 and 20
+
+UNION ALL
+
+SELECT ProductID, ProductName, Price FROM Products
+WHERE ProductID BETWEEN 19 and 21</pre>
+                    </div>
+                    <img src="img\Tabla9.png" alt="Ejemplo de UNION ALL en SQL" class="img-lesson img-lg">
+                    <p>En este caso, el resultado de la consulta incluirá los productos con ID 18, 19, 20 y 21, y el producto con ID 19 aparecerá dos veces debido a que UNION ALL no elimina los duplicados.</p>
+                </article>
+
+                <article id="lesson-11" class="lesson-content">
+                    <h1> Vistas </h1>
+                    <p>Una vista es una tabla virtual que se basa en el resultado de una consulta SQL. Las vistas no almacenan datos en sí mismas, sino que muestran datos de una o más tablas. Por ejemplo, para el ejercicio anterior que hemos visto podríamos hacerlo de la siguiente manera:</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>CREATE VIEW View_Uds_Tot as
+SELECT
+	FirstName,
+	LastName,
+	(SELECT sum(od.Quantity) from [Orders] o, [OrderDetails] od
+	WHERE o.EmployeeID =e.EmployeeID and od.OrderID = o.OrderID) as Uds_tot
+FROM [Employees] e</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>SELECT * from View_Uds_Tot
+WHERE Uds_tot > (SELECT avg(Uds_tot) FROM View_Uds_Tot)</pre>
+                    </div>
+
+                    <p>En este caso, hemos creado una vista llamada View_Uds_Tot que muestra el nombre y apellido de cada empleado junto con la cantidad total de unidades vendidas por cada uno. Luego, podemos consultar esta vista para obtener solo los empleados que han vendido más unidades que el promedio.</p>
+                    <p>De esta manera consseguimos un código más limpio y fácil de entender, ya que no tenemos que repetir la subconsulta cada vez que queremos obtener la cantidad total de unidades vendidas por cada empleado.</p>
+
+                    <p>Es importante que boremos las vistas cuando ya no las necesitemos</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>DROP VIEW View_Uds_Tot</pre>
+                    </div>
+
+                </article>
+                
+
+
+
+                <article id="lesson-12" class="lesson-content">
+                    <!-- He extraído este texto directamente de tu "Instrucciones.ipynb" -->
+                    <h1>Transacciones y prevención de desastres</h1>
+                    
+                    <p>Alterar una base de datos es un tanto peligroso, ya que si borras algo que no debes ya no hay marcha atrás. Para prevenir este tipo de fatalidades usamos las <strong>transacciones</strong>.</p>
+                    
+                    <p>Una transacción te crea como una "burbuja" que no se aplica definitivamente hasta que tú lo decides.</p>
+
+                    <!-- Ejemplo de celda de código -->
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>BEGIN TRANSACTION;
+
+UPDATE Employees 
+SET FirstName = 'Eustaquia' 
+WHERE FirstName = 'Nancy';</pre>
+                    </div>
+
+                    <p>Supongamos que la hemos cagado y al final no teníamos que hacer esto. <span class="code-inline">ROLLBACK</span> te permite tirar para atrás deshaciendo todo lo que ha ocurrido.</p>
+
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>ROLLBACK;</pre>
+                    </div>
+
+                    <p>Si por el contrario, queremos que los cambios se apliquen definitivamente, usamos <span class="code-inline">COMMIT</span>.</p>
+                    <div class="code-block">
+                        <div class="code-badge">SQL</div>
+                        <pre>COMMIT;</pre>
+                    </div>
+
+                </article>
+
+                <!-- ========================================== -->
+                <!-- CONTROLES DE NAVEGACIÓN (Siguiente/Anterior)-->
+                <!-- ========================================== -->
+                <div class="bottom-nav">
+                    <button class="btn btn-outline" id="btn-prev" disabled>← Anterior</button>
+                    <button class="btn btn-primary" id="btn-next">Siguiente Lección →</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LÓGICA JAVASCRIPT                          -->
+    <!-- ========================================== -->
+    <script>
+        // 1. Mostrar/Ocultar Menú Lateral
+        const btnToggle = document.getElementById('toggle-sidebar');
+        const appContainer = document.getElementById('app');
+
+        btnToggle.addEventListener('click', () => {
+            appContainer.classList.toggle('menu-oculto');
+        });
+
+        // 2. Sistema de Navegación de Lecciones
+        const navItems = document.querySelectorAll('.nav-item');
+        const lessons = document.querySelectorAll('.lesson-content');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const mainScroll = document.getElementById('main-scroll');
+
+        let currentIndex = 0;
+
+        function goToLesson(index) {
+            if (index < 0 || index >= navItems.length) return;
+
+            // Limpiamos los estados activos
+            navItems.forEach(item => item.classList.remove('active'));
+            lessons.forEach(lesson => lesson.classList.remove('active'));
+
+            // Activamos el elemento del menú actual
+            navItems[index].classList.add('active');
+            
+            // Buscamos a qué lección apunta usando el atributo "data-target"
+            const targetId = navItems[index].getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+
+            // Actualizamos la posición actual
+            currentIndex = index;
+
+            // Habilitamos/Deshabilitamos los botones inferiores
+            btnPrev.disabled = currentIndex === 0;
+            btnNext.disabled = currentIndex === navItems.length - 1;
+
+            // Actualizamos el texto superior (Miga de pan)
+            // Busca el título del grupo (ej. "Módulo 0") que está justo antes del item del menú
+            const moduleTitle = navItems[index].previousElementSibling.innerText;
+            const lessonTitle = document.querySelector(`#${targetId} h1`).innerText;
+            breadcrumb.innerHTML = `${moduleTitle} / <strong>${lessonTitle}</strong>`;
+
+            // Hacemos scroll hacia arriba al cambiar de lección
+            mainScroll.scrollTop = 0;
+        }
+
+        // Asignamos el evento "click" a cada elemento del menú
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                goToLesson(index);
+            });
+        });
+
+        // Asignamos el evento "click" a los botones de abajo
+        btnPrev.addEventListener('click', () => goToLesson(currentIndex - 1));
+        btnNext.addEventListener('click', () => goToLesson(currentIndex + 1));
+
+    </script>
+</body>
+</html>
