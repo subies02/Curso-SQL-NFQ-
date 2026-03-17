@@ -334,7 +334,6 @@
                 
                 <nav id="course-menu">
                     <!-- Cada div.nav-item tiene un data-target que apunta al ID del <article> correspondiente -->
-                    <div class="nav-group-title">Módulo 0</div>
                     <div class="nav-item active" data-target="lesson-0">0. Introducción a DB Browser</div>
                     
                     <div class="nav-group-title">1. Mi primera tabla</div>
@@ -343,7 +342,7 @@
                     <div class="nav-item" data-target="lesson-3">1.3. Consultar datos</div>
                     <div class="nav-item" data-target="lesson-4">1.4. Identificadores</div>
 
-                    <div class="nav-group-title">2.Interacción con la base de datos</div>
+                    <div class="nav-group-title">2.Visualización</div>
                     <div class="nav-item" data-target="lesson-5">2.1. Ordenar y nombrar tablas</div>
                     <div class="nav-item" data-target="lesson-6">2.2. Filtrar datos</div>
                     <div class="nav-item" data-target="lesson-7">2.3. Funciones</div>
@@ -354,7 +353,7 @@
                     <div class="nav-item" data-target="lesson-10">3.3. Union</div>
                     <div class="nav-item" data-target="lesson-11">3.4. Vistas</div>
 
-                    <div class="nav-group-title">Transacciones</div>
+                    <div class="nav-group-title">4. Transacciones</div>
                     <div class="nav-item" data-target="lesson-12">4.1. Transacciones y Rollback</div>
                 </nav>
             </div>
@@ -772,7 +771,7 @@ ON e.EmployeeID = o.EmployeeID</pre>
                     </div>
                     <p>En este caso, estamos combinando las tablas Employees y Orders basándonos en la columna EmployeeID que es común a ambas tablas. El resultado de esta consulta será una nueva tabla que contiene todas las columnas de ambas tablas para las filas donde EmployeeID coincide.</p>
                     <p>Existen varios tipos de JOINs, siendo los más comunes:</p>
-                    <img src="img\join.png" alt="Tipos de JOIN en SQL" class="img-lesson img-md">
+                    <img src="img\join.png" alt="Tipos de JOIN en SQL" class="img-lesson img-lg">
                     <ul>
                         <li><strong>INNER JOIN</strong>: Devuelve solo las filas que tienen coincidencias en ambas tablas (funciona también con solo JOIN).</li>
                         <li><strong>LEFT JOIN</strong>: Devuelve todas las filas de la tabla izquierda y las filas coincidentes de la tabla derecha. Si no hay coincidencia, las columnas de la tabla derecha tendrán valores NULL. <span class="code-inline">SELECT * from A LEFT JOIN B on A.id = B.id</span>.</li>
