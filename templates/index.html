@@ -636,8 +636,8 @@
                     </div>
 
                     <p>Con este código hemos creado una tabla llamada "usuarios" con tres columnas: "nombre", "apellido" y "edad".</p>
-                    <p>Como vemos, el código es bastante intuitivo. En su sintaxis vemos primer el nombre de la tabla, seguido de las columnas que queremos añadir, entre parentesis y separadas por comas. Para las columnas primero ponemos el nombre de ésta entre '' (o "") seguido de su formato. El formato indica que tipo de valor va a haber en la celda de cada columna. Por ejemplo, el nombre será texto así que su formato será TEXT. Para la edad, será un número entero, así que su formato será INTEGER. </p>
-                    <p> A parte de estos dos formatos hay muchos más. Los más usados son DATE, para fechas; REAL, para valores con decimales, limitados a 64 bytes; NUMERIC, para valores con decimales sin limite de bytes (como pi); o BLOB, para el formati binario. </p>
+                    <p>Como vemos, el código es bastante intuitivo. En su sintaxis vemos primer el nombre de la tabla, seguido de las columnas que queremos añadir, entre parentesis y separadas por comas. Para las columnas primero ponemos el nombre de ésta entre '' (o "") seguido de su formato. El formato indica que tipo de valor va a haber en la celda de cada columna. Por ejemplo, el nombre será texto así que su formato será <span class="code-inline">TEXT</span>. Para la edad, será un número entero, así que su formato será <span class="code-inline">INTEGER</span>. </p>
+                    <p> A parte de estos dos formatos hay muchos más. Los más usados son <span class="code-inline">DATE</span>, para fechas; <span class="code-inline">REAL</span>, para valores con decimales, limitados a 64 bytes; <span class="code-inline">NUMERIC</span>, para valores con decimales sin limite de bytes (como pi); o <span class="code-inline">BLOB</span>, para el formati binario. </p>
                 </article>
 
                 <article id="lesson-2" class="lesson-content">
@@ -694,7 +694,7 @@ CREATE TABLE 'usuarios' (
     PRIMARY KEY ('DNI' AUTOINCREMENT)
 );</pre>
                     </div>
-                    <p>Con este código hemos eliminado la tabla "usuarios" y la hemos vuelto a crear añadiendo una nueva columna llamada "DNI" que será nuestro identificador. Además, hemos indicado que esta columna será la clave primaria (PRIMARY KEY) y que se autoincrementará (AUTOINCREMENT) cada vez que añadamos una nueva fila. De esta manera, cada fila tendrá un número único en la columna "DNI".</p>
+                    <p>Con este código hemos eliminado la tabla "usuarios" y la hemos vuelto a crear añadiendo una nueva columna llamada "DNI" que será nuestro identificador. Además, hemos indicado que esta columna será la clave primaria (<span class="code-inline">PRIMARY KEY</span>) y que se autoincrementará (<span class="code-inline">AUTOINCREMENT</span>) cada vez que añadamos una nueva fila. De esta manera, cada fila tendrá un número único en la columna "DNI".</p>
                     <p>Ahora que ya tenemos nuestro identificador, podemos insertar los datos de nuevo. Esta vez, como el identificador se autoincrementa, no necesitamos especificarlo en el código de inserción:</p>
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
@@ -731,8 +731,7 @@ SELECT * FROM usuarios;</pre>
                     <h1> Ordenar y nombrar tablas </h1>
                     <p>A la hora de visualizar tablas podemos pedir que en la visualización las columnas tengan otro nombre usando AS.</p>
                     <p>Para ordenar las filas segune el valor de una columna usamos <span class="code-inline">ORDER BY <i>Nombre Columna</i> ASC/DESC</span></p>
-                    <p>ASC implica ascendiente (y es el que viene por defecto, no hace falta que lo pongamos) y DESC descendiente (si queremos los valores menores arriba o abajo).</p>
-                    <p>Este es un <em>texto importante en cursiva</em> y este es <i>texto en cursiva simple</i>.</p>
+                    <p><span class="code-inline">ASC</span> implica ascendiente (y es el que viene por defecto, no hace falta que lo pongamos) y <span class="code-inline">DESC</span> descendiente (si queremos los valores menores arriba o abajo).</p>
 
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
@@ -742,7 +741,7 @@ order by    Price DESC</pre>
                     <p>En general el peso de cada formato es:</p>  
                     <p style="text-align: center;">NULL (celdas vacias) &rarr; Números &rarr; Carácteres especiales &rarr; Letras</p>
 
-                    <p>Si queremos que los NULL nos aparezcan al principio/final ponemos NULLS LAST/FIRST, después del ASC/DESC.</p>
+                    <p>Si queremos que los <span class="code-inline">NULL</span> nos aparezcan al principio/final ponemos <span class="code-inline">NULLS LAST/FIRST</span>, después del <span class="code-inline">ASC/DESC</span>.</p>
 
                     <p>También podemos ordenar según varias columnas, siendo la primera la que manda más.</p>
                     <div class="code-block">
@@ -763,7 +762,7 @@ WHERE ProductID = 14;</pre>
                     </div>
 
                     <p>En este caso nos aparecerá el producto con ID 14. Para texto se tiene que poner entre ' ' y los operadores son <, >, <=, >=, =, !=.</p>
-                    <p>Si queremos usar varios a la vez usamos AND y OR. </p>
+                    <p>Si queremos usar varios a la vez usamos <span class="code-inline">AND</span> y <span class="code-inline">OR</span>. </p>
 
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
@@ -777,7 +776,7 @@ WHERE ProductID != 14 and Price > 30</pre>
                         <pre>SELECT*FROM Employees
 where FirstName ='Nancy' or FirstName = 'Anne'</pre>
                     </div>
-                    <p>Y si queremos el contrario de un conjunto usamos NOT.</p>
+                    <p>Y si queremos el contrario de un conjunto usamos <span class="code-inline">NOT</span>.</p>
 
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
@@ -872,7 +871,7 @@ WHERE SupplierID IN (3, 4, 9, 14);</pre>
 --WHERE ProductName IS NOT NULL</pre>
                     </div>
 
-                    <p>Si queremos ver la suma de los valores, pero según una característica en concreto, usamos GROUP BY. Esto nos permite agrupar esta suma según dicha característica.</p>
+                    <p>Si queremos ver la suma de los valores, pero según una característica en concreto, usamos <span class="code-inline">GROUP BY</span>. Esto nos permite agrupar esta suma según dicha característica.</p>
 
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
@@ -882,7 +881,7 @@ GROUP by SupplierID
 ORDER by Precio_Medio DESC;</pre>
                     </div>
 
-                    <p>Si queremos filtrar usando una de las columnas que acabamos de calcular no podemos usar WHERE, tenemos que usar HAVING. Funciona de la misma manera per para columnas calculadas.</p>
+                    <p>Si queremos filtrar usando una de las columnas que acabamos de calcular no podemos usar <span class="code-inline">WHERE</span>, tenemos que usar <span class="code-inline">HAVING</span>. Funciona de la misma manera per para columnas calculadas.</p>
                     <div class="code-block">
                         <div class="code-badge">SQL</div>
                         <pre>SELECT SupplierID, count(Price) as Cantidad_Precios, sum(price) as Suma_Precios, Round(AVG(price),2) as Precio_Medio FROM Products
